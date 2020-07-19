@@ -108,15 +108,19 @@ def tobs():
     all_tmp = list(np.ravel(tops_results))
     return jsonify(all_tmp)
 
-# @app.route("/api/v1.0/<start>")
-# def startdate(start):
-#     print(start)
+@app.route("/api/v1.0/<start>")
+def startdate(start):
+    session=Session(engine)
 
-#     start_time = pd.to_datetime(start,  infer_datetime_format=True).date()
-#     # start_date = start_time.dt.date
-#     # print('start_date',start_date, type(start_date))
-#     print(start_time, type(start_time))
-#     return jsonify(start_time)
+    start_date1 = pd.to_datetime(start, format='%Y-%m-%d').date()
+    #end_date = pd.to_datetime(endt, format='%Y-%m-%d').date()
+
+    tmp_stats1= session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+        filter(Measurement.date >= start_date1).all()
+
+    session.close()
+
+    return jsonify(tmp_stats1)
 
 @app.route("/api/v1.0/<startt>/<endt>")
 def calc_temps(startt, endt):
